@@ -264,7 +264,7 @@ abstract class ActorSystem extends ActorRefFactory with TypedActorFactory {
    * Extensions can be registered automatically by adding their fully-qualified
    * class name to the `akka.extensions` configuration key.
    */
-  def registerExtension(ext: Extension[_ <: AnyRef])
+  def registerExtension[T <: AnyRef](ext: Extension[T]): T
 
   /**
    * Obtain a reference to a registered extension by passing in the key which
@@ -400,12 +400,15 @@ class ActorSystemImpl(val name: String, val applicationConfig: Config) extends A
 
   private val extensions = new ConcurrentHashMap[ExtensionKey[_], Extension[_]]
 
-  def registerExtension(ext: Extension[_ <: AnyRef]) {
-    val key = ext.init(this)
-    extensions.put(key, ext) match {
-      case null ⇒
-      case old  ⇒ log.warning("replacing extension {}:{} with {}", key, old, ext)
+  def registerExtension[T <: AnyRef](ext: Extension[T]): T = {
+    val key = ext.key
+    key.synchronized {
+      if (!extensions.containsKey(key)) {
+        ext.init(this)
+        extensions.put(key, ext)
+      }
     }
+    extension(key)
   }
 
   def extension[T <: AnyRef](key: ExtensionKey[T]): T = extensions.get(key) match {

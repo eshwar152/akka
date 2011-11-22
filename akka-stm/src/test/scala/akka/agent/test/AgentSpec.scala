@@ -10,6 +10,7 @@ import akka.util.Duration
 import akka.util.duration._
 import java.util.concurrent.CountDownLatch
 import akka.testkit.AkkaSpec
+import akka.testkit._
 
 class CountDownFunction[A](num: Int = 1) extends Function1[A, A] {
   val latch = new CountDownLatch(num)

@@ -42,6 +42,9 @@ package akka.actor
  * }}}
  */
 trait Extension[T <: AnyRef] {
+
+  def key: ExtensionKey[T]
+
   /**
    * This method is called by the ActorSystem upon registering this extension.
    * The key returned is used for looking up extensions, hence it must be a
@@ -49,7 +52,7 @@ trait Extension[T <: AnyRef] {
    * best achieved by storing it in a static field (Java) or as/in an object
    * (Scala).
    */
-  def init(system: ActorSystemImpl): ExtensionKey[T]
+  def init(system: ActorSystemImpl)
 }
 
 /**

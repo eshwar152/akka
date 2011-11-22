@@ -28,14 +28,12 @@ class TestBarrier(count: Int) {
   def await()(implicit system: ActorSystem): Unit = await(TestBarrier.DefaultTimeout)
 
   def await(timeout: Duration)(implicit system: ActorSystem) {
-    val systemExtension = TestKitExtension(system)
-    implicit val dilation = systemExtension.settings.TestTimeFactor
     try {
       barrier.await(timeout.dilated.toNanos, TimeUnit.NANOSECONDS)
     } catch {
       case e: TimeoutException ⇒
         throw new TestBarrierTimeoutException("Timeout of %s and time factor of %s"
-          format (timeout.toString, systemExtension.settings.TestTimeFactor))
+          format (timeout.toString, TestKitExtension(system).settings.TestTimeFactor))
     }
   }
 

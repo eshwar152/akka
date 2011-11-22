@@ -14,21 +14,24 @@ import com.typesafe.config.ConfigRoot
 import akka.util.Duration
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
-object TestKitExtension extends ExtensionKey[TestKitExtension] {
+object TestKitExtensionKey extends ExtensionKey[TestKitExtension]
+
+object TestKitExtension {
   def apply(system: ActorSystem): TestKitExtension = {
-    if (!system.hasExtension(TestKitExtension)) {
+    if (!system.hasExtension(TestKitExtensionKey)) {
       system.registerExtension(new TestKitExtension)
     }
-    system.extension(TestKitExtension)
+    system.extension(TestKitExtensionKey)
   }
 }
 
 class TestKitExtension extends Extension[TestKitExtension] {
   private var _settings: Settings = _
 
-  def init(_system: ActorSystemImpl): ExtensionKey[TestKitExtension] = {
+  def key = TestKitExtensionKey
+
+  def init(_system: ActorSystemImpl) {
     _settings = new Settings(_system.applicationConfig)
-    TestKitExtension
   }
 
   def settings: Settings = _settings
@@ -41,7 +44,7 @@ class TestKitExtension extends Extension[TestKitExtension] {
 
     import config._
 
-    val TestTimeFactor = Duration.Dilation(getDouble("akka.test.timefactor"))
+    val TestTimeFactor = getDouble("akka.test.timefactor")
     val SingleExpectDefaultTimeout = Duration(getMilliseconds("akka.test.single-expect-default"), MILLISECONDS)
     val TestEventFilterLeeway = Duration(getMilliseconds("akka.test.filter-leeway"), MILLISECONDS)
 
