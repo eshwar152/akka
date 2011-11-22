@@ -55,7 +55,7 @@ object ActorSystem {
     private def referenceConfig: Config =
       ConfigFactory.parseResource(classOf[ActorSystem], "/akka-actor-reference.conf",
         ConfigParseOptions.defaults.setAllowMissing(false))
-    val config: ConfigRoot = ConfigFactory.emptyRoot("akka").withFallback(cfg).withFallback(referenceConfig).resolve()
+    val config: ConfigRoot = ConfigFactory.emptyRoot("akka-actor").withFallback(cfg).withFallback(referenceConfig).resolve()
 
     import scala.collection.JavaConverters._
     import config._
@@ -65,10 +65,6 @@ object ActorSystem {
 
     val ActorTimeout = Timeout(Duration(getMilliseconds("akka.actor.timeout"), MILLISECONDS))
     val SerializeAllMessages = getBoolean("akka.actor.serialize-messages")
-
-    val TestTimeFactor = getDouble("akka.test.timefactor")
-    val SingleExpectDefaultTimeout = Duration(getMilliseconds("akka.test.single-expect-default"), MILLISECONDS)
-    val TestEventFilterLeeway = Duration(getMilliseconds("akka.test.filter-leeway"), MILLISECONDS)
 
     val LogLevel = getString("akka.loglevel")
     val StdoutLogLevel = getString("akka.stdout-loglevel")
@@ -292,11 +288,11 @@ abstract class ActorSystem extends ActorRefFactory with TypedActorFactory {
   def hasExtension(key: ExtensionKey[_]): Boolean
 }
 
-class ActorSystemImpl(val name: String, _config: Config) extends ActorSystem {
+class ActorSystemImpl(val name: String, val applicationConfig: Config) extends ActorSystem {
 
   import ActorSystem._
 
-  val settings = new Settings(_config)
+  val settings = new Settings(applicationConfig)
 
   protected def systemImpl = this
 

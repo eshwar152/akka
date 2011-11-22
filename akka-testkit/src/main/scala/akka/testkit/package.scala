@@ -12,8 +12,9 @@ package object testkit {
     try {
       val result = block
 
-      val stop = now + system.settings.TestEventFilterLeeway.toMillis
-      val failed = eventFilters filterNot (_.awaitDone(Duration(stop - now, MILLISECONDS))) map ("Timeout (" + system.settings.TestEventFilterLeeway + ") waiting for " + _)
+      val systemExtension = TestKitExtension(system)
+      val stop = now + systemExtension.settings.TestEventFilterLeeway.toMillis
+      val failed = eventFilters filterNot (_.awaitDone(Duration(stop - now, MILLISECONDS))) map ("Timeout (" + systemExtension.settings.TestEventFilterLeeway + ") waiting for " + _)
       if (failed.nonEmpty)
         throw new AssertionError("Filter completion error:\n" + failed.mkString("\n"))
 

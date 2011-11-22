@@ -136,6 +136,8 @@ object Duration {
     def unary_- : Duration = throw new IllegalArgumentException("cannot negate Undefined duration")
   }
 
+  case class Dilation(factor: Double)
+
   trait Infinite {
     this: Duration ⇒
 
@@ -278,7 +280,7 @@ abstract class Duration extends Serializable {
   def /(other: Duration): Double
   def unary_- : Duration
   def finite_? : Boolean
-  def dilated(implicit system: ActorSystem): Duration = this * system.settings.TestTimeFactor
+  def dilated(implicit dilation: Duration.Dilation): Duration = this * dilation.factor
   def min(other: Duration): Duration = if (this < other) this else other
   def max(other: Duration): Duration = if (this > other) this else other
   def sleep(): Unit = Thread.sleep(toMillis)
@@ -483,3 +485,4 @@ class DurationDouble(d: Double) {
   def days = Duration(d, DAYS)
   def day = Duration(d, DAYS)
 }
+

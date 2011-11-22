@@ -11,7 +11,7 @@ class JavaExtensionSpec extends JavaExtension with JUnitSuite
 
 object ActorSystemSpec {
 
-  case class TestExtension extends Extension[TestExtension] {
+  class TestExtension extends Extension[TestExtension] {
     var system: ActorSystemImpl = _
 
     def init(system: ActorSystemImpl): ExtensionKey[TestExtension] = {

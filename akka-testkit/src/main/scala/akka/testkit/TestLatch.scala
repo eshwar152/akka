@@ -34,9 +34,11 @@ class TestLatch(count: Int = 1)(implicit system: ActorSystem) {
   def await(): Boolean = await(TestLatch.DefaultTimeout)
 
   def await(timeout: Duration): Boolean = {
+    val systemExtension = TestKitExtension(system)
+    implicit val dilation = systemExtension.settings.TestTimeFactor
     val opened = latch.await(timeout.dilated.toNanos, TimeUnit.NANOSECONDS)
     if (!opened) throw new TestLatchTimeoutException(
-      "Timeout of %s with time factor of %s" format (timeout.toString, system.settings.TestTimeFactor))
+      "Timeout of %s with time factor of %s" format (timeout.toString, systemExtension.settings.TestTimeFactor))
     opened
   }
 
@@ -44,9 +46,11 @@ class TestLatch(count: Int = 1)(implicit system: ActorSystem) {
    * Timeout is expected. Throws exception if latch is opened before timeout.
    */
   def awaitTimeout(timeout: Duration = TestLatch.DefaultTimeout) = {
+    val systemExtension = TestKitExtension(system)
+    implicit val dilation = systemExtension.settings.TestTimeFactor
     val opened = latch.await(timeout.dilated.toNanos, TimeUnit.NANOSECONDS)
     if (opened) throw new TestLatchNoTimeoutException(
-      "Latch opened before timeout of %s with time factor of %s" format (timeout.toString, system.settings.TestTimeFactor))
+      "Latch opened before timeout of %s with time factor of %s" format (timeout.toString, systemExtension.settings.TestTimeFactor))
     opened
   }
 

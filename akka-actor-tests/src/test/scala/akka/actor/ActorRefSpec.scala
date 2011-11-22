@@ -50,7 +50,8 @@ object ActorRefSpec {
     }
 
     private def work {
-      1.second.dilated.sleep
+      val systemExtension = TestKitExtension(system)
+      1.second.dilated(TestKitExtension(system).settings.TestTimeFactor).sleep
     }
   }
 

@@ -71,7 +71,7 @@ class TestActor(queue: BlockingDeque[TestActor.Message]) extends Actor {
  *
  * It should be noted that for CI servers and the like all maximum Durations
  * are scaled using their Duration.dilated method, which uses the
- * Duration.timeFactor settable via akka.conf entry "akka.test.timefactor".
+ * TestKitExtension.Settings.TestTimeFactor settable via akka.conf entry "akka.test.timefactor".
  *
  * @author Roland Kuhn
  * @since 1.1
@@ -81,6 +81,8 @@ class TestKit(_system: ActorSystem) {
   import TestActor.{ Message, RealMessage, NullMessage }
 
   implicit val system = _system
+  val systemExtension = TestKitExtension(system)
+  implicit val dilation = systemExtension.settings.TestTimeFactor
 
   private val queue = new LinkedBlockingDeque[Message]()
   private[akka] var lastMessage: Message = NullMessage
@@ -127,7 +129,7 @@ class TestKit(_system: ActorSystem) {
    * block or missing that it returns the properly dilated default for this
    * case from settings (key "akka.test.single-expect-default").
    */
-  def remaining: Duration = if (end == Duration.Undefined) system.settings.SingleExpectDefaultTimeout.dilated else end - now
+  def remaining: Duration = if (end == Duration.Undefined) systemExtension.settings.SingleExpectDefaultTimeout.dilated else end - now
 
   /**
    * Query queue status.
